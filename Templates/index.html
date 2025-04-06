@@ -1,68 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Predictive Maintenance for Factory Equipment</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f7; text-align: center; padding-top: 30px; }
-        h1 { background-color: #007bff; color: white; padding: 20px; }
-        .btn { padding: 10px 20px; font-weight: bold; margin: 10px; border: none; cursor: pointer; border-radius: 5px; }
-        .load { background-color: #00aaff; color: white; }
-        .train { background-color: #ff8800; color: white; }
-        .predict { background-color: purple; color: white; }
-        input, select { padding: 10px; margin: 5px; width: 200px; border-radius: 5px; }
-        .result { margin-top: 20px; font-size: 18px; }
-        .table { margin: 20px auto; width: 90%; border-collapse: collapse; }
-        .table th, .table td { padding: 10px; border: 1px solid #ccc; text-align: center; }
-    </style>
+    <title>Predictive Maintenance</title>
 </head>
 <body>
-    <h1>PREDICTIVE MAINTENANCE FOR FACTORY EQUIPMENT</h1>
+    <h1>Predictive Maintenance Dashboard</h1>
 
     <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="dataset" required>
-        <button class="btn load" type="submit">Load Dataset</button>
-    </form>
+        <p>Upload CSV Dataset:</p>
+        <input type="file" name="dataset"><br><br>
 
-    <form method="POST">
+        <label for="classifier">Select Classifier:</label>
         <select name="classifier">
-            <option value="Random Forest" {% if classifier == 'Random Forest' %}selected{% endif %}>Random Forest</option>
-            <option value="Logistic Regression" {% if classifier == 'Logistic Regression' %}selected{% endif %}>Logistic Regression</option>
-            <option value="SVM" {% if classifier == 'SVM' %}selected{% endif %}>SVM</option>
-        </select>
-        <input type="hidden" name="action" value="train">
-        <button class="btn train" type="submit">Train Model</button>
+            <option>Random Forest</option>
+            <option>Logistic Regression</option>
+            <option>SVM</option>
+        </select><br><br>
+
+        <button name="action" value="train">Train Model</button>
     </form>
 
-    <div class="result">
-        <strong>Accuracy:</strong> {{ accuracy if accuracy else 'N/A' }}
-    </div>
-
-    {% if data %}
-        <h3>Dataset Preview</h3>
-        {{ data|safe }}
+    {% if accuracy %}
+        <p><strong>Accuracy:</strong> {{ accuracy }}%</p>
     {% endif %}
 
-    <h3>Enter Values for Prediction:</h3>
+    {% if prediction %}
+        <p><strong>Prediction:</strong> {{ prediction }}</p>
+    {% endif %}
+
+    <h3>Enter input for prediction:</h3>
     <form method="POST">
-        <input type="hidden" name="action" value="predict">
-        <input type="text" name="temperature" placeholder="Temperature" required><br>
-        <input type="text" name="vibration" placeholder="Vibration" required><br>
-        <input type="text" name="pressure" placeholder="Pressure" required><br>
-        <input type="text" name="rpm" placeholder="RPM" required><br>
-        <input type="text" name="load" placeholder="Load" required><br>
-        <input type="text" name="runtime" placeholder="Runtime" required><br>
-        <input type="text" name="humidity" placeholder="Humidity" required><br>
-        <input type="text" name="last_maintenance" placeholder="Last Maintenance" required><br>
-        <button class="btn predict" type="submit">Predict</button>
+        {% for col in ['temperature', 'vibration', 'pressure', 'rpm', 'load', 'runtime', 'humidity', 'last_maintenance'] %}
+            <label>{{ col }}:</label>
+            <input type="text" name="{{ col }}"><br>
+        {% endfor %}
+        <br>
+        <button name="action" value="predict">Predict</button>
     </form>
 
-    {% if prediction is not none %}
-        <div class="result">
-            <strong>Prediction:</strong>
-            <span style="color: {{ 'green' if prediction == 0 else 'red' }}">
-                {{ 'No Failure' if prediction == 0 else 'Failure' }}
-            </span>
-        </div>
+    {% if data %}
+        <h3>Dataset Preview:</h3>
+        {{ data|safe }}
     {% endif %}
 </body>
 </html>
