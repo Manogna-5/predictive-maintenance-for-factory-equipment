@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 
-app = Flask(_name_)
+app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
 # Globals to store model and data
@@ -100,7 +100,7 @@ def index():
                            classifier=classifier_name)
 
 # ✅ Render-compatible entrypoint
-if _name_ == '_main_':
+if __name__ == '__main__':
     os.makedirs('uploads', exist_ok=True)
     port = int(os.environ.get("PORT", 5000))  # For Render/Heroku
     app.run(host='0.0.0.0', port=port, debug=True)
