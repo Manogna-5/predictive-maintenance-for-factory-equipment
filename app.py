@@ -59,7 +59,8 @@ def index():
             try:
                 values = [float(request.form[col]) for col in FEATURE_COLUMNS]
                 pred_df = pd.DataFrame([values], columns=FEATURE_COLUMNS)
-                prediction = model.predict(pred_df)[0]
+                result = model.predict(pred_df)[0]
+                prediction = "Failure" if result == 1 else "No Failure"
             except ValueError:
                 prediction = 'Invalid input'
 
@@ -69,6 +70,8 @@ def index():
                            prediction=prediction,
                            classifier=classifier_name)
 
+# ✅ Render-compatible entrypoint
 if __name__ == '__main__':
     os.makedirs('uploads', exist_ok=True)
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # For Render or local dev
+    app.run(host='0.0.0.0', port=port, debug=True)
