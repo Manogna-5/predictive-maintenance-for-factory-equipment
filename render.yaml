@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: predictive-maintenance-app
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    region: oregon
+    plan: free
+    runtime: python
+    branch: main
+    repo: https://github.com/Manogna-5/predictive-maintenance-for-factory-equipment

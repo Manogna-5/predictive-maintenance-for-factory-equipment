@@ -1,0 +1,5 @@
+temperature,pressure,vibration,failure
+75,30,10,0
+85,35,15,1
+60,25,8,0
+90,40,18,1
