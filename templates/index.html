@@ -2,9 +2,66 @@
 <html>
 <head>
     <title>Predictive Maintenance for Factory Equipment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f7; text-align: center; padding-top: 30px; }
-        h1 { background-color: #007bff; color: white; padding: 20px; }
+        body { font-family: Arial, sans-serif; background-image:url('https://img.freepik.com/free-vector/colorful-pastel-poly-background_53876-62611.jpg');
+background-size:cover; }
+
+        h1 { background-color: #c0cecf; 
+transition: background-color 300ms;color: #de6333; 
+margin:0px;padding: 20px; text-align: center; 
+font-family:"lobster"; font-size:25px;}
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #c0cecf;
+            padding: 10px 20px;
+            color: #121110;
+             font-family:"caveat";
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #121110;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                background-color: #007bff;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+            }
+
+            .nav-links.show {
+                display: flex;
+            }
+
+            .hamburger {
+                display: block;
+            }
+        }
+
+        /* General Styling */
+        section { padding: 30px 20px; text-align: center; }
         .btn { padding: 10px 20px; font-weight: bold; margin: 10px; border: none; cursor: pointer; border-radius: 5px; }
         .load { background-color: #00aaff; color: white; }
         .train { background-color: #ff8800; color: white; }
@@ -13,62 +70,172 @@
         .result { margin-top: 20px; font-size: 18px; }
         .table { margin: 20px auto; width: 90%; border-collapse: collapse; }
         .table th, .table td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+
+        @media (max-width: 600px) {
+            input, select { width: 90%; }
+            .table { font-size: 12px; }
+            form { display: flex; flex-direction: column; align-items: center; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Header -->
     <h1>PREDICTIVE MAINTENANCE FOR FACTORY EQUIPMENT</h1>
 
-    <!-- Load Dataset -->
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="dataset" required>
-        <button class="btn load" type="submit">Load Dataset</button>
-    </form>
-
-    <!-- Train Model -->
-    <form method="POST">
-        <select name="classifier">
-            <option value="Random Forest" {% if classifier == 'Random Forest' %}selected{% endif %}>Random Forest</option>
-            <option value="Logistic Regression" {% if classifier == 'Logistic Regression' %}selected{% endif %}>Logistic Regression</option>
-            <option value="SVM" {% if classifier == 'SVM' %}selected{% endif %}>SVM</option>
-        </select>
-        <input type="hidden" name="action" value="train">
-        <button class="btn train" type="submit">Train Model</button>
-    </form>
-
-    <!-- Accuracy Result -->
-    <div class="result">
-        <strong>Accuracy:</strong> {{ accuracy if accuracy else 'N/A' }}
+    <!-- Navbar -->
+    <div class="navbar">
+          <span class="hamburger" onclick="toggleMenu()">☰</span>
+        <div class="nav-links" id="navLinks">
+            <a href="#home">Home</a>
+            <a href="#upload">Upload</a>
+            <a href="#train">Train</a>
+            <a href="#predict">Predict</a>
+            <a href="#charts">Charts</a>
+        </div>
     </div>
 
-    <!-- Show Dataset -->
-    {% if data %}
+    <!-- Home Section -->
+    <section id="home">
+        <h2>Welcome to Predictive Maintenance System</h2>
+        <p>Upload data, train models, and make predictions in real time!</p>
+    </section>
+
+    <!-- Upload Section -->
+    <section id="upload">
+        <h2>Load Dataset</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="dataset" accept=".csv" required>
+            <button class="btn load" type="submit">Load Dataset</button>
+        </form>
+        {% if upload_error %}
+        <div class="result" style="color: red;">
+            {{ upload_error }}
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Train Model Section -->
+    <section id="train">
+        <h2>Train Model</h2>
+        <form method="POST">
+            <select name="classifier">
+                <option value="Random Forest" {% if classifier == 'Random Forest' %}selected{% endif %}>Random Forest</option>
+                <option value="Logistic Regression" {% if classifier == 'Logistic Regression' %}selected{% endif %}>Logistic Regression</option>
+                <option value="KNN" {% if classifier == 'KNN' %}selected{% endif %}>K-Nearest Neighbors (KNN)</option>
+                <option value="SVM" {% if classifier == 'SVM' %}selected{% endif %}>Support Vector Machine (SVM)</option>
+            </select>
+            <input type="hidden" name="action" value="train">
+            <button class="btn train" type="submit">Train Model</button>
+        </form>
+        <div class="result">
+            <strong>Accuracy:</strong> {{ accuracy if accuracy else 'N/A' }}
+        </div>
+        {% if classifier %}
+        <div class="result">
+            <strong>Current Model:</strong> {{ classifier }}
+        </div>
+        {% endif %}
+        {% if data %}
         <h3>Sample Dataset</h3>
         {{ data|safe }}
-    {% endif %}
+        {% endif %}
+    </section>
 
-    <!-- Prediction Form -->
-    <h3>Enter Values for Prediction:</h3>
-    <form method="POST">
-        <input type="text" name="temperature" placeholder="Temperature" required><br>
-        <input type="text" name="vibration" placeholder="Vibration" required><br>
-        <input type="text" name="pressure" placeholder="Pressure" required><br>
-        <input type="text" name="rpm" placeholder="RPM" required><br>
-        <input type="text" name="load" placeholder="Load" required><br>
-        <input type="text" name="runtime" placeholder="Runtime" required><br>
-        <input type="text" name="humidity" placeholder="Humidity" required><br>
-        <input type="text" name="last_maintenance" placeholder="Time Since Last Maintenance" required><br>
-        <input type="hidden" name="action" value="predict">
-        <button class="btn predict" type="submit">Predict</button>
-    </form>
-
-    <!-- Show Prediction -->
-    {% if prediction is not none %}
+    <!-- Prediction Section -->
+    <section id="predict">
+        <h2>Enter Values for Prediction</h2>
+        <form method="POST">
+            <input type="number" step="any" name="temperature" placeholder="Temperature (°C)" required>
+            <input type="number" step="any" name="vibration" placeholder="Vibration" required>
+            <input type="number" step="any" name="pressure" placeholder="Pressure" required>
+            <input type="number" step="any" name="rpm" placeholder="RPM" required>
+            <input type="number" step="any" name="load" placeholder="Load" required>
+            <input type="number" step="any" name="runtime" placeholder="Runtime" required>
+            <input type="number" step="any" name="humidity" placeholder="Humidity" required>
+            <input type="number" step="any" name="last_maintenance" placeholder="Time Since Last Maintenance" required>
+            <input type="hidden" name="classifier" value="{{ classifier }}">
+            <input type="hidden" name="action" value="predict"> <br>
+            <button class="btn predict" type="submit">Predict</button>
+            <button class="btn" type="reset" style="background-color: #6c757d; color: white;">Reset</button>
+        </form>
+        {% if prediction is not none %}
         <div class="result">
             <strong>Prediction:</strong>
             <span style="color: {{ 'green' if prediction == 0 else 'red' }}">
                 {{ 'No Failure' if prediction == 0 else 'Failure' }}
             </span>
         </div>
+        {% endif %}
+
+        {% if prediction_log %}
+        <form method="GET" action="/download_predictions">
+            <button class="btn load" type="submit">Download Predictions CSV</button>
+        </form>
+        {% endif %}
+    </section>
+
+    <!-- Charts Section -->
+    {% if failure_count is not none %}
+    <section id="charts">
+        <h2>Failure Distribution</h2>
+        <canvas id="failurePieChart" width="400" height="400"></canvas>
+        <canvas id="failureBarChart" width="400" height="300"></canvas>
+    </section>
     {% endif %}
+
+    <!-- Loader -->
+    <div id="loader" style="display:none; font-weight: bold; text-align: center;">⏳ Processing... Please wait.</div>
+
+    <!-- JavaScript for Chart & Hamburger -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('navLinks');
+            nav.classList.toggle('show');
+        }
+
+        {% if failure_count is not none %}
+        const failureData = {{ failure_count|tojson }};
+        const labels = Object.keys(failureData);
+        const values = Object.values(failureData);
+
+        new Chart(document.getElementById('failurePieChart'), {
+            type: 'pie',
+            data: {
+                labels: labels.map(label => label == "1" ? "Failure" : "No Failure"),
+                datasets: [{
+                    data: values,
+                    backgroundColor: ['#2ecc71','#e74c3c']
+                }]
+            }
+        });
+
+        new Chart(document.getElementById('failureBarChart'), {
+            type: 'bar',
+            data: {
+                labels: labels.map(label => label == "1" ? "Failure" : "No Failure"),
+                datasets: [{
+                    label: 'Count',
+                    data: values,
+                    backgroundColor:  ['#2ecc71','#e74c3c']
+
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+        {% endif %}
+
+        // Loader display
+        document.querySelectorAll("form").forEach(form => {
+            form.addEventListener("submit", () => {
+                document.getElementById("loader").style.display = "block";
+            });
+        });
+    </script>
 </body>
 </html>
